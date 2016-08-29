@@ -1,0 +1,133 @@
+package datastructures
+
+import (
+	"fmt"
+
+	"github.com/andreasstrack/datastructures"
+)
+
+// Key is an interface to represent
+// the type of a key for a key/value store.
+type Key interface {
+	Int() int64
+	String() string
+}
+
+// keyValue represents one element in a key-value-store.
+type keyValue struct {
+	k Key
+	v datastructures.Value
+}
+
+func (kv *keyValue) key() Key {
+	return kv.k
+}
+
+func (kv *keyValue) value() datastructures.Value {
+	return kv.v
+}
+
+func newKeyValue(k Key, v datastructures.Value) *keyValue {
+	return &keyValue{k: k, v: v}
+}
+
+type KeyValueStore interface {
+	Get(k Key) (datastructures.Value, error)
+	Set(k Key, v datastructures.Value) error
+	Contains(k Key) (bool, error)
+	Delete(k Key) error
+}
+
+func Set(kvs KeyValueStore, k interface{}, v interface{}) error {
+	return kvs.Set(datastructures.NewVariant(k), datastructures.NewVariant(v))
+}
+
+func Get(kvs KeyValueStore, k interface{}) (datastructures.Value, error) {
+	return kvs.Get(datastructures.NewVariant(k))
+}
+
+func Delete(kvs KeyValueStore, k interface{}) error {
+	return kvs.Delete(datastructures.NewVariant(k))
+}
+
+type localKeyValueStoreWithIntKey struct {
+	valueIndex map[int64]datastructures.Value
+}
+
+func Contains(kvs KeyValueStore, k interface{}) (bool, error) {
+	return kvs.Contains(datastructures.NewVariant(k))
+}
+
+type localKeyValueStoreWithStringKey struct {
+	valueIndex map[string]datastructures.Value
+}
+
+func NewLocalKeyValueStore(kind datastructures.ValueKind) KeyValueStore {
+	switch kind {
+	case datastructures.Int:
+		kvs := &localKeyValueStoreWithIntKey{}
+		kvs.init()
+		return kvs
+	case datastructures.String:
+		kvs := &localKeyValueStoreWithStringKey{}
+		kvs.init()
+		return kvs
+	}
+	return nil
+}
+
+func (lkvi *localKeyValueStoreWithIntKey) init() {
+	lkvi.valueIndex = make(map[int64]datastructures.Value)
+}
+
+func (lkvi *localKeyValueStoreWithIntKey) Get(k Key) (datastructures.Value, error) {
+	var err error
+	v, found := lkvi.valueIndex[k.Int()]
+	if !found {
+		err = fmt.Errorf("key '%d' not contained in store", k.Int())
+	}
+	return v, err
+}
+
+func (lkvi *localKeyValueStoreWithIntKey) Set(k Key, v datastructures.Value) error {
+	lkvi.valueIndex[k.Int()] = v
+	return nil
+}
+
+func (lkvi *localKeyValueStoreWithIntKey) Contains(k Key) (bool, error) {
+	_, found := lkvi.valueIndex[k.Int()]
+	return found, nil
+}
+
+func (lkvi *localKeyValueStoreWithIntKey) Delete(k Key) error {
+	delete(lkvi.valueIndex, k.Int())
+	return nil
+}
+
+func (lkvs *localKeyValueStoreWithStringKey) init() {
+	lkvs.valueIndex = make(map[string]datastructures.Value)
+}
+
+func (lkvs *localKeyValueStoreWithStringKey) Get(k Key) (datastructures.Value, error) {
+	var err error
+	v, found := lkvs.valueIndex[k.String()]
+	if !found {
+		err = fmt.Errorf("key '%s' not contained in store", k.String)
+	}
+	return v, err
+}
+
+func (lkvs *localKeyValueStoreWithStringKey) Set(k Key, v datastructures.Value) error {
+	lkvs.valueIndex[k.String()] = v
+	return nil
+}
+
+func (lkvs *localKeyValueStoreWithStringKey) Delete(k Key) error {
+	delete(lkvs.valueIndex, k.String())
+	return nil
+}
+
+func (lkvs *localKeyValueStoreWithStringKey) Contains(k Key) (bool, error) {
+	_, found := lkvs.valueIndex[k.String()]
+	return found, nil
+}

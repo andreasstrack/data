@@ -25,12 +25,6 @@ type Comparable interface {
 	EqualTo(c Comparable) bool
 }
 
-// A ComparableValue is composed of a Comparable and a Value.
-type ComparableValue interface {
-	Comparable
-	Value
-}
-
 // A ComparableList is a slice of Comparable objects.
 type ComparableList []Comparable
 

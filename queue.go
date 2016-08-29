@@ -10,9 +10,9 @@ package datastructures
 // of the queue. Upon retrieving an element from a
 // queue, it will be removed from the queue.
 type Queue interface {
-	Add(e interface{})
-	Remove()
-	Element() interface{}
+	Insert(e interface{})
+	Peek() interface{}
+	Pop() interface{}
 }
 
 // A PriorityQueue is a queue where at any
@@ -21,7 +21,7 @@ type Queue interface {
 // priority of elements is determined by comparing
 // them.
 type PriorityQueue interface {
-	Add(c Comparable)
-	Remove()
-	Element() Comparable
+	Insert(c Comparable)
+	Peek() Comparable
+	Pop() Comparable
 }
