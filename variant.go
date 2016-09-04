@@ -80,11 +80,20 @@ func (v Variant) IsString() bool {
 }
 
 func (v Variant) String() string {
-	if v.Kind() == reflect.String {
+	switch v.valueKind {
+	case Bool:
+		return fmt.Sprintf("%s", v.b)
+	case Int:
+		return fmt.Sprintf("%d", v.i64)
+	case Uint:
+		return fmt.Sprintf("%d", (uint64)(v.i64))
+	case Float:
+		return fmt.Sprintf("%f", v.f64)
+	case String:
 		return v.s
+	default:
+		return fmt.Sprintf("%s", v.val)
 	}
-
-	return fmt.Sprintf("%s", v.val)
 }
 
 func (v Variant) LessThan(v2 Variant) bool {

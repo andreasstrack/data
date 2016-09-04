@@ -14,31 +14,11 @@ const (
 // the type of a value for a key/value store.
 type Value interface {
 	ValueKind() ValueKind
-	String() string
-}
-
-type BoolValue interface {
-	Value
-	Bool()
-}
-
-type IntValue interface {
-	Value
+	Bool() bool
 	Int() int64
-}
-
-type UintValue interface {
-	Value
 	Uint() uint64
-}
-
-type FloatValue interface {
-	Value
 	Float() float64
-}
-
-type StringValue interface {
-	Value
+	String() string
 }
 
 // A ComparableValue is composed of a Comparable and a Value.
