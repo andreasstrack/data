@@ -12,6 +12,45 @@ type ChildIterator interface {
 
 type ChildIteratorFactory func(n Node) ChildIterator
 
+func newDefaultChildIterator(n Node) ChildIterator {
+	ci := &defaultChildIterator{}
+	ci.Init(n)
+	return ci
+}
+
+type defaultChildIterator struct {
+	parent    Node
+	nextIndex int
+	next      Node
+}
+
+func (ici *defaultChildIterator) Init(n Node) {
+	ici.parent = n
+	ici.nextIndex = -1
+	ici.getNext()
+}
+
+func (ici *defaultChildIterator) getNext() {
+	c := ici.parent.GetChildren()
+	l := len(c)
+	ici.nextIndex = ici.nextIndex + 1
+	if ici.nextIndex < l {
+		ici.next = c[ici.nextIndex]
+	} else {
+		ici.next = nil
+	}
+}
+
+func (ici *defaultChildIterator) HasNext() bool {
+	return ici.next != nil
+}
+
+func (ici *defaultChildIterator) Next() interface{} {
+	result := ici.next
+	ici.getNext()
+	return result
+}
+
 type nodeIteratorStrategy interface {
 	init(n Node, cbf ChildIteratorFactory)
 	patterns.Iterator
@@ -60,35 +99,33 @@ func (dfs *depthFirstStrategy) Next() interface{} {
 }
 
 type breadthFirstStrategy struct {
-	cif  ChildIteratorFactory
-	ci   ChildIterator
-	cql  datastructures.List
-	next Node
+	cif                ChildIteratorFactory
+	ci                 ChildIterator
+	currentParentNodes datastructures.Queue
+	nextParentNodes    datastructures.Queue
+	next               Node
 }
 
 func (bfs *breadthFirstStrategy) init(n Node, cif ChildIteratorFactory) {
 	bfs.cif = cif
-	bfs.cql = datastructures.NewArrayList()
-	bfs.cql.Add(datastructures.NewFifoQueue())
-	bfs.cql.Back().(datastructures.Queue).Insert(n)
 	bfs.next = n
+	bfs.currentParentNodes = datastructures.NewFifoQueue()
+	bfs.nextParentNodes = datastructures.NewFifoQueue()
+	bfs.currentParentNodes.Insert(n)
 	bfs.newChildIterator()
 }
 
 func (bfs *breadthFirstStrategy) newChildIterator() {
-	if bfs.cql.IsEmpty() {
+	if bfs.currentParentNodes.IsEmpty() {
+		bfs.currentParentNodes = bfs.nextParentNodes
+		bfs.nextParentNodes = datastructures.NewFifoQueue()
+	}
+	if bfs.currentParentNodes.IsEmpty() {
 		bfs.ci = nil
 		return
 	}
-	topQueue := bfs.cql.Back().(datastructures.Queue)
-	if topQueue.IsEmpty() {
-		bfs.cql.Remove(bfs.cql.Size() - 1)
-		bfs.newChildIterator()
-		return
-	}
-	newParent := topQueue.Pop().(Node)
-	bfs.ci = bfs.cif(newParent)
-	bfs.cql.Add(datastructures.NewFifoQueue())
+	parentNode := bfs.currentParentNodes.Pop().(Node)
+	bfs.ci = bfs.cif(parentNode)
 }
 
 func (bfs *breadthFirstStrategy) getNext() {
@@ -102,7 +139,7 @@ func (bfs *breadthFirstStrategy) getNext() {
 		return
 	}
 	bfs.next = bfs.ci.Next().(Node)
-	bfs.cql.Back().(datastructures.Queue).Insert(bfs.next)
+	bfs.nextParentNodes.Insert(bfs.next)
 }
 
 func (bfs *breadthFirstStrategy) HasNext() bool {

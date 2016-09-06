@@ -10,19 +10,11 @@ import (
 
 func TestBreadtFirstTraversal(t *testing.T) {
 	tt := T.NewT(t)
-	tree := NewTree(1)
-	const lastValue int64 = 5
-	for i := int64(2); i <= lastValue; i++ {
-		tree.Add(NewTree(i))
-	}
-	c := tree.GetChildren()
-	for i := range c {
-		c[i].Add(NewTree(lastValue + int64(i) + 1))
-	}
+	tree := buildTestTree()
 
-	ni := NewNodeIterator(tree, newIntChildIterator, BreadthFirst)
-
-	for i := int64(0); i < lastValue*2-1; i++ {
+	ni := NewNodeIterator(tree, newDefaultChildIterator, BreadthFirst)
+	maxValue := int64(Size(tree))
+	for i := int64(0); i < maxValue; i++ {
 		tt.Assert(ni.HasNext(), "HasNext (loop index %d)", i)
 		tt.AssertEquals(ni.Next().(Node).GetValue().Int(), i+1, "Value (loop index %d)", i)
 	}
@@ -30,59 +22,39 @@ func TestBreadtFirstTraversal(t *testing.T) {
 	tt.AssertEquals(ni.Next(), nil, "Value (after loop)")
 }
 
-func TestDepthFirstTraversal(t *testing.T) {
-	// tt := T.NewT(t)
-	// tree := NewTree(1)
-	// const lastValue int64 = 20
-	// bni := NewNodeIterator(tree, func(n Node) ChildIterator {
-	// 	return newIntBuildingChildIterator(n, lastValue, 2)
-	// }, BreadthFirst)
-	// for bni.HasNext() {
-	// 	next := bni.Next()
-	// 	tt.Assert(next != nil, "next node: %s", next)
-	// 	t.FailNow()
-	// }
-	// tt.AssertEquals(Size(tree), int(lastValue), "size of built tree")
-	// fmt.Printf("%s\n", tree)
-}
-
-type intChildIterator struct {
-	parent    Node
-	nextIndex int
-	next      Node
-}
-
-func (ici *intChildIterator) Init(n Node) {
-	ici.parent = n
-	ici.nextIndex = -1
-	ici.getNext()
-}
-
-func (ici *intChildIterator) getNext() {
-	c := ici.parent.GetChildren()
-	l := len(c)
-	ici.nextIndex = ici.nextIndex + 1
-	if ici.nextIndex < l {
-		ici.next = c[ici.nextIndex]
-	} else {
-		ici.next = nil
+func buildIntTree(lastValue int64) *Tree {
+	tree := NewTree(1)
+	bni := NewNodeIterator(tree, func(n Node) ChildIterator {
+		return newIntBuildingChildIterator(n, lastValue, 2)
+	}, BreadthFirst)
+	for bni.HasNext() {
+		bni.Next()
 	}
+	return tree
 }
 
-func (ici *intChildIterator) HasNext() bool {
-	return ici.next != nil
+func TestIntBuildingChildIterator(t *testing.T) {
+	tt := T.NewT(t)
+	const lastValue int64 = 7
+	tree := buildIntTree(lastValue)
+	tt.Assert(tree != nil, "resulting tree not nil: %s", tree)
+	tt.AssertEquals(Size(tree), int(lastValue), "size of built tree")
+	tt.AssertEquals("1 -> [2 -> [4 5] 3 -> [6 7]]", tree.String(), "string representation of tree")
 }
 
-func (ici *intChildIterator) Next() interface{} {
-	result := ici.next
-	ici.getNext()
-	return result
-}
-
-func newIntChildIterator(n Node) ChildIterator {
-	ci := &intChildIterator{}
-	ci.Init(n)
-	return ci
+func TestDepthFirstTraversal(t *testing.T) {
+	tt := T.NewT(t)
+	const lastValue int64 = 7
+	tree := buildIntTree(lastValue)
+	ni := NewNodeIterator(tree, newDefaultChildIterator, DepthFirst)
+	var expectedNodeValues = [...]int64{1, 2, 4, 5, 3, 6, 7}
+	index := 0
+	for ni.HasNext() {
+		n := ni.Next().(Node)
+		tt.AssertEquals(expectedNodeValues[index], n.GetValue().Int(), "value of index %d in %s", index, tree)
+		index++
+	}
+	tt.AssertEquals(index, Size(tree), "number of iterated nodes in %s", tree)
 }
 
 type intBuildingChildIterator struct {
@@ -109,13 +81,13 @@ func (ibci *intBuildingChildIterator) Init(n Node) {
 
 func (ibci *intBuildingChildIterator) findNextValue() int64 {
 	maxValue := int64(math.MinInt64)
-	unclesNephewsAndSiblings := append(append(GetChildrenAndNephews(ibci.parent), GetSelfAndSiblings(ibci.parent)...), GetParentAndUncles(ibci.parent)...)
-	fmt.Printf("Num uncles, nephews, and siblings: %d\n", len(unclesNephewsAndSiblings))
-	if len(unclesNephewsAndSiblings) == 0 {
+	allNodes := GetAllNodesOfTree(ibci.parent)
+	fmt.Printf("Num uncles, nephews, and siblings: %d\n", len(allNodes))
+	if len(allNodes) == 0 {
 		return 0
 	}
-	for i := range unclesNephewsAndSiblings {
-		maxValue = int64(math.Max(float64(maxValue), float64(unclesNephewsAndSiblings[i].GetValue().Int())))
+	for i := range allNodes {
+		maxValue = int64(math.Max(float64(maxValue), float64(allNodes[i].GetValue().Int())))
 	}
 	return maxValue + 1
 }

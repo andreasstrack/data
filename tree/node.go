@@ -83,6 +83,7 @@ func GetParentAndUncles(n Node) (uncles []Node) {
 	}
 	grandparent := parent.GetParent()
 	if grandparent == nil {
+		uncles = append(uncles, parent)
 		return
 	}
 	return grandparent.GetChildren()
@@ -94,6 +95,7 @@ func GetSelfAndSiblings(n Node) (siblings []Node) {
 	}
 	parent := n.GetParent()
 	if parent == nil {
+		siblings = append(siblings, n)
 		return
 	}
 	siblings = parent.GetChildren()
@@ -102,6 +104,10 @@ func GetSelfAndSiblings(n Node) (siblings []Node) {
 
 func GetSelfSiblingsAndCousins(n Node) (cousins []Node) {
 	uncles := GetParentAndUncles(n)
+	if len(uncles) == 0 {
+		cousins = append(cousins, n)
+		return
+	}
 	for i := range uncles {
 		cousins = append(cousins, uncles[i].GetChildren()...)
 	}
@@ -112,6 +118,36 @@ func GetChildrenAndNephews(n Node) (nephews []Node) {
 	siblings := GetSelfAndSiblings(n)
 	for i := range siblings {
 		nephews = append(nephews, siblings[i].GetChildren()...)
+	}
+	return
+}
+
+func GetRoot(n Node) (root Node) {
+	if n == nil {
+		return
+	}
+	var child, parent Node
+	child = n
+	for root == nil {
+		parent = child.GetParent()
+		if parent == nil {
+			root = child
+		}
+		child = parent
+		parent = nil
+	}
+
+	return root
+}
+
+func GetAllNodesOfTree(n Node) (nodes []Node) {
+	root := GetRoot(n)
+	if root == nil {
+		return
+	}
+	ni := NewNodeIterator(root, newDefaultChildIterator, DepthFirst)
+	for ni.HasNext() {
+		nodes = append(nodes, ni.Next().(Node))
 	}
 	return
 }

@@ -6,8 +6,8 @@ type List interface {
 	Add(e interface{})
 	Remove(index int)
 	At(index int) interface{}
-	Front() interface{}
-	Back() interface{}
+	First() interface{}
+	Last() interface{}
 	Clear()
 	Size() int
 	IsEmpty() bool
@@ -33,14 +33,14 @@ func (al *ArrayList) At(index int) interface{} {
 	return al.list[index]
 }
 
-func (al *ArrayList) Front() interface{} {
+func (al *ArrayList) First() interface{} {
 	if len(al.list) == 0 {
 		return nil
 	}
 	return al.list[0]
 }
 
-func (al *ArrayList) Back() interface{} {
+func (al *ArrayList) Last() interface{} {
 	if len(al.list) == 0 {
 		return nil
 	}
