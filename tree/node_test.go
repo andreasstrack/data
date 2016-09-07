@@ -10,7 +10,7 @@ func TestString(t *testing.T) {
 	tt := T.NewT(t)
 	tree := buildTestTree()
 	const referenceString = "1 -> [2 -> [4 -> [7 8]] 3 -> [5 -> [9 10] 6]]"
-	tt.AssertEquals(referenceString, tree.String(), "string representation of tree")
+	tt.AssertEquals(referenceString, String(tree), "string representation of tree")
 }
 
 func TestSize(t *testing.T) {
@@ -127,16 +127,16 @@ func TestGetRoot(t *testing.T) {
 	}
 }
 
-func buildTestTree() *Tree {
-	tree := NewTree(1)
-	tree.Add(NewTree(2))
-	tree.Add(NewTree(3))
-	tree.GetChildren()[0].Add(NewTree(4))
-	tree.GetChildren()[1].Add(NewTree(5))
-	tree.GetChildren()[1].Add(NewTree(6))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewTree(7))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewTree(8))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewTree(9))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewTree(10))
+func buildTestTree() Node {
+	tree := NewNode(1)
+	tree.Add(NewNode(2))
+	tree.Add(NewNode(3))
+	tree.GetChildren()[0].Add(NewNode(4))
+	tree.GetChildren()[1].Add(NewNode(5))
+	tree.GetChildren()[1].Add(NewNode(6))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewNode(7))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewNode(8))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewNode(9))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewNode(10))
 	return tree
 }

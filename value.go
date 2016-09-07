@@ -8,6 +8,7 @@ const (
 	Uint
 	Float
 	String
+	Interface
 )
 
 // Value is an interface to represent
@@ -19,6 +20,7 @@ type Value interface {
 	Uint() uint64
 	Float() float64
 	String() string
+	Interface() interface{}
 }
 
 // A ComparableValue is composed of a Comparable and a Value.

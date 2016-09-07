@@ -13,31 +13,30 @@ const (
 	BreadthFirst
 )
 
-type Tree struct {
-	val datastructures.Variant
-
+type variantNode struct {
+	val      datastructures.Variant
 	parent   Node
 	children []Node
 }
 
-func NewTree(rootValue interface{}) *Tree {
-	return &Tree{val: *datastructures.NewVariant(rootValue), parent: nil, children: make([]Node, 0)}
+func NewNode(value interface{}) Node {
+	return &variantNode{val: *datastructures.NewVariant(value), parent: nil, children: make([]Node, 0)}
 }
 
-func (t *Tree) GetValue() datastructures.Value {
+func (t *variantNode) GetValue() datastructures.Value {
 	return &t.val
 }
 
-func (t *Tree) GetChildren() (children []Node) {
+func (t *variantNode) GetChildren() (children []Node) {
 	return t.children
 }
 
-func (t *Tree) Add(child Node) {
+func (t *variantNode) Add(child Node) {
 	t.children = append(t.children, child)
 	child.SetParent(t)
 }
 
-func (t *Tree) Insert(child Node, index int) error {
+func (t *variantNode) Insert(child Node, index int) error {
 	if index < 0 || index > len(t.children) {
 		return fmt.Errorf("index %d out of range (0-%d)", index, len(t.children))
 	}
@@ -46,7 +45,7 @@ func (t *Tree) Insert(child Node, index int) error {
 	return nil
 }
 
-func (t *Tree) Remove(index int) error {
+func (t *variantNode) Remove(index int) error {
 	if index < 0 || index >= len(t.children) {
 		return fmt.Errorf("index %d out of range (0-%d)", index, len(t.children)-1)
 	}
@@ -54,14 +53,14 @@ func (t *Tree) Remove(index int) error {
 	return nil
 }
 
-func (t *Tree) GetParent() Node {
+func (t *variantNode) GetParent() Node {
 	return t.parent
 }
 
-func (t *Tree) SetParent(parent Node) {
+func (t *variantNode) SetParent(parent Node) {
 	t.parent = parent
 }
 
-func (t *Tree) String() string {
+func (t *variantNode) String() string {
 	return String(t)
 }

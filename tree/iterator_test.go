@@ -1,7 +1,6 @@
 package tree
 
 import (
-	"fmt"
 	"math"
 	"testing"
 
@@ -22,8 +21,8 @@ func TestBreadtFirstTraversal(t *testing.T) {
 	tt.AssertEquals(ni.Next(), nil, "Value (after loop)")
 }
 
-func buildIntTree(lastValue int64) *Tree {
-	tree := NewTree(1)
+func buildIntTree(lastValue int64) Node {
+	tree := NewNode(1)
 	bni := NewNodeIterator(tree, func(n Node) ChildIterator {
 		return newIntBuildingChildIterator(n, lastValue, 2)
 	}, BreadthFirst)
@@ -39,7 +38,7 @@ func TestIntBuildingChildIterator(t *testing.T) {
 	tree := buildIntTree(lastValue)
 	tt.Assert(tree != nil, "resulting tree not nil: %s", tree)
 	tt.AssertEquals(Size(tree), int(lastValue), "size of built tree")
-	tt.AssertEquals("1 -> [2 -> [4 5] 3 -> [6 7]]", tree.String(), "string representation of tree")
+	tt.AssertEquals("1 -> [2 -> [4 5] 3 -> [6 7]]", String(tree), "string representation of tree")
 }
 
 func TestDepthFirstTraversal(t *testing.T) {
@@ -82,7 +81,6 @@ func (ibci *intBuildingChildIterator) Init(n Node) {
 func (ibci *intBuildingChildIterator) findNextValue() int64 {
 	maxValue := int64(math.MinInt64)
 	allNodes := GetAllNodesOfTree(ibci.parent)
-	fmt.Printf("Num uncles, nephews, and siblings: %d\n", len(allNodes))
 	if len(allNodes) == 0 {
 		return 0
 	}
@@ -97,7 +95,7 @@ func (ibci *intBuildingChildIterator) getNext() {
 		ibci.next = nil
 		return
 	}
-	ibci.next = NewTree(ibci.nextValue)
+	ibci.next = NewNode(ibci.nextValue)
 	ibci.nextValue++
 	ibci.count++
 }
