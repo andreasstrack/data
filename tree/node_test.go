@@ -128,15 +128,15 @@ func TestGetRoot(t *testing.T) {
 }
 
 func buildTestTree() Node {
-	tree := NewNode(1)
-	tree.Add(NewNode(2))
-	tree.Add(NewNode(3))
-	tree.GetChildren()[0].Add(NewNode(4))
-	tree.GetChildren()[1].Add(NewNode(5))
-	tree.GetChildren()[1].Add(NewNode(6))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewNode(7))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewNode(8))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewNode(9))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewNode(10))
+	tree := NewValueNode(1)
+	tree.Add(NewValueNode(2))
+	tree.Add(NewValueNode(3))
+	tree.GetChildren()[0].Add(NewValueNode(4))
+	tree.GetChildren()[1].Add(NewValueNode(5))
+	tree.GetChildren()[1].Add(NewValueNode(6))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNode(7))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNode(8))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNode(9))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNode(10))
 	return tree
 }

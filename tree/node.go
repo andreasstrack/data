@@ -12,11 +12,11 @@ type Node interface {
 	GetValue() datastructures.Value
 
 	GetChildren() []Node
-	Add(child Node)
+	Add(child Node) error
 	Insert(child Node, index int) error
 	Remove(index int) error
 	GetParent() Node
-	SetParent(n Node)
+	SetParent(n Node) error
 }
 
 func String(n Node) string {

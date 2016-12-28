@@ -1,9 +1,40 @@
 package tree
 
 import (
+	"fmt"
+
 	"github.com/andreasstrack/datastructures"
 	"github.com/andreasstrack/util/patterns"
 )
+
+type NodeValidator interface {
+	IsValid(n Node) bool
+}
+
+type defaultNodeValidator struct {
+}
+
+func (dnv defaultNodeValidator) IsValid(n Node) bool {
+	return true
+}
+
+type NodeIterator struct {
+	nis  nodeIteratorStrategy
+	nv   NodeValidator
+	next Node
+}
+
+func NewValidatedNodeIterator(start Node, cif ChildIteratorFactory, strategy TraversalStrategy, nv NodeValidator) *NodeIterator {
+	ni := &NodeIterator{}
+	ni.init(start, cif, strategy, nv)
+	return ni
+}
+
+func NewNodeIterator(start Node, cif ChildIteratorFactory, strategy TraversalStrategy) *NodeIterator {
+	ni := &NodeIterator{}
+	ni.init(start, cif, strategy, defaultNodeValidator{})
+	return ni
+}
 
 type ChildIterator interface {
 	patterns.Iterator
@@ -99,32 +130,26 @@ func (dfs *depthFirstStrategy) Next() interface{} {
 }
 
 type breadthFirstStrategy struct {
-	cif                ChildIteratorFactory
-	ci                 ChildIterator
-	currentParentNodes datastructures.Queue
-	nextParentNodes    datastructures.Queue
-	next               Node
+	cif         ChildIteratorFactory
+	ci          ChildIterator
+	nextParents datastructures.Queue
+	next        Node
 }
 
 func (bfs *breadthFirstStrategy) init(n Node, cif ChildIteratorFactory) {
 	bfs.cif = cif
 	bfs.next = n
-	bfs.currentParentNodes = datastructures.NewFifoQueue()
-	bfs.nextParentNodes = datastructures.NewFifoQueue()
-	bfs.currentParentNodes.Insert(n)
+	bfs.nextParents = datastructures.NewFifoQueue()
+	bfs.nextParents.Insert(n)
 	bfs.newChildIterator()
 }
 
 func (bfs *breadthFirstStrategy) newChildIterator() {
-	if bfs.currentParentNodes.IsEmpty() {
-		bfs.currentParentNodes = bfs.nextParentNodes
-		bfs.nextParentNodes = datastructures.NewFifoQueue()
-	}
-	if bfs.currentParentNodes.IsEmpty() {
+	if bfs.nextParents.IsEmpty() {
 		bfs.ci = nil
 		return
 	}
-	parentNode := bfs.currentParentNodes.Pop().(Node)
+	parentNode := bfs.nextParents.Pop().(Node)
 	bfs.ci = bfs.cif(parentNode)
 }
 
@@ -139,7 +164,7 @@ func (bfs *breadthFirstStrategy) getNext() {
 		return
 	}
 	bfs.next = bfs.ci.Next().(Node)
-	bfs.nextParentNodes.Insert(bfs.next)
+	bfs.nextParents.Insert(bfs.next)
 }
 
 func (bfs *breadthFirstStrategy) HasNext() bool {
@@ -152,18 +177,8 @@ func (bfs *breadthFirstStrategy) Next() interface{} {
 	return node
 }
 
-type NodeIterator struct {
-	nis  nodeIteratorStrategy
-	next Node
-}
-
-func NewNodeIterator(start Node, cif ChildIteratorFactory, strategy TraversalStrategy) *NodeIterator {
-	ni := &NodeIterator{}
-	ni.init(start, cif, strategy)
-	return ni
-}
-
-func (ni *NodeIterator) init(start Node, cif ChildIteratorFactory, strategy TraversalStrategy) {
+func (ni *NodeIterator) init(start Node, cif ChildIteratorFactory, strategy TraversalStrategy, nv NodeValidator) {
+	ni.nv = nv
 	switch strategy {
 	case DepthFirst:
 		ni.nis = &depthFirstStrategy{}
@@ -173,10 +188,9 @@ func (ni *NodeIterator) init(start Node, cif ChildIteratorFactory, strategy Trav
 		panic("invalid traversal strategy")
 	}
 	ni.nis.init(start, cif)
-	if ni.nis.HasNext() {
-		ni.next = ni.nis.Next().(Node)
-	} else {
-		ni.next = nil
+	ni.next = start
+	if !ni.nv.IsValid(ni.next) {
+		ni.Next()
 	}
 }
 
@@ -185,11 +199,18 @@ func (ni *NodeIterator) HasNext() bool {
 }
 
 func (ni *NodeIterator) Next() interface{} {
-	result := ni.next
-	if !ni.nis.HasNext() {
-		ni.next = nil
-	} else {
-		ni.next = ni.nis.Next().(Node)
+	var result Node
+	done := false
+	for !done {
+		result = ni.next
+		if !ni.nis.HasNext() {
+			ni.next = nil
+		} else {
+			ni.next = ni.nis.Next().(Node)
+		}
+		fmt.Printf("ni.Next(): %s? (next: %s?)\n", result, ni.next)
+		done = result == nil || ni.nv.IsValid(result)
 	}
+	fmt.Printf("ni.Next(): %s\n", result)
 	return result
 }

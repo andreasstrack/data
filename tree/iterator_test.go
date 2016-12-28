@@ -7,7 +7,7 @@ import (
 	T "github.com/andreasstrack/util/testing"
 )
 
-func TestBreadtFirstTraversal(t *testing.T) {
+func TestBreadthFirstTraversal(t *testing.T) {
 	tt := T.NewT(t)
 	tree := buildTestTree()
 
@@ -22,7 +22,7 @@ func TestBreadtFirstTraversal(t *testing.T) {
 }
 
 func buildIntTree(lastValue int64) Node {
-	tree := NewNode(1)
+	tree := NewValueNode(1)
 	bni := NewNodeIterator(tree, func(n Node) ChildIterator {
 		return newIntBuildingChildIterator(n, lastValue, 2)
 	}, BreadthFirst)
@@ -95,7 +95,7 @@ func (ibci *intBuildingChildIterator) getNext() {
 		ibci.next = nil
 		return
 	}
-	ibci.next = NewNode(ibci.nextValue)
+	ibci.next = NewValueNode(ibci.nextValue)
 	ibci.nextValue++
 	ibci.count++
 }
