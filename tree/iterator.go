@@ -208,7 +208,7 @@ func (ni *NodeIterator) Next() interface{} {
 		} else {
 			ni.next = ni.nis.Next().(Node)
 		}
-		fmt.Printf("ni.Next(): %s? (next: %s?)\n", result, ni.next)
+		fmt.Printf("ni.Next(): %s? (next: %s?)\n", result.GetValue().ReflectValue().Interface(), ni.next.GetValue().ReflectValue().Interface())
 		done = result == nil || ni.nv.IsValid(result)
 	}
 	fmt.Printf("ni.Next(): %s\n", result)

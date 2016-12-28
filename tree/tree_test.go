@@ -28,7 +28,7 @@ func TestAddChildren(t *testing.T) {
 }
 
 func TestInsertRemoveChildren(t *testing.T) {
-	tt := T.NewT(t)
+	tt := T.NewVerboseT(t)
 	tree := NewValueNode(1)
 	tt.AssertError(tree.Insert(NewValueNode(2), 1), "insert at invalid index")
 	tt.AssertError(tree.Insert(NewValueNode(2), -1), "insert at invalid index")
@@ -39,4 +39,7 @@ func TestInsertRemoveChildren(t *testing.T) {
 	tt.AssertError(tree.Remove(2), "remove at invalid index")
 	tt.AssertEquals(tree.GetChildren()[0].GetValue().Int(), int64(2), "value of child 0")
 	tt.AssertEquals(tree.GetChildren()[1].GetValue().Int(), int64(4), "value of child 1")
+	tt.AssertNoError(tree.Remove(1), "Remove at valid index")
+	tt.AssertNoError(tree.Remove(0), "Remove at valid index")
+	tt.AssertEquals(len(tree.GetChildren()), 0, "number of children of %s", tree)
 }

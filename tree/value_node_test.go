@@ -6,7 +6,7 @@ import (
 	T "github.com/andreasstrack/util/testing"
 )
 
-func TestValueNode(t *testing.T) {
+func TestCurrentValueNode(t *testing.T) {
 	tt := T.NewT(t)
 	root := NewValueNode(1)
 	for i := 2; i < 5; i++ {
