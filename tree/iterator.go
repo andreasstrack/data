@@ -1,8 +1,6 @@
 package tree
 
 import (
-	"fmt"
-
 	"github.com/andreasstrack/datastructures"
 	"github.com/andreasstrack/util/patterns"
 )
@@ -102,6 +100,7 @@ func (dfs *depthFirstStrategy) init(n Node, cbf ChildIteratorFactory) {
 
 func (dfs *depthFirstStrategy) newChildIterator() {
 	dfs.cbs.Insert(dfs.cbf(dfs.next))
+
 }
 
 func (dfs *depthFirstStrategy) getNext() {
@@ -188,10 +187,7 @@ func (ni *NodeIterator) init(start Node, cif ChildIteratorFactory, strategy Trav
 		panic("invalid traversal strategy")
 	}
 	ni.nis.init(start, cif)
-	ni.next = start
-	if !ni.nv.IsValid(ni.next) {
-		ni.Next()
-	}
+	ni.next = ni.nis.Next().(Node)
 }
 
 func (ni *NodeIterator) HasNext() bool {
@@ -200,17 +196,19 @@ func (ni *NodeIterator) HasNext() bool {
 
 func (ni *NodeIterator) Next() interface{} {
 	var result Node
-	done := false
-	for !done {
-		result = ni.next
+	resultOk := false
+	nextOk := false
+	for !resultOk || !nextOk {
+		if !resultOk {
+			result = ni.next
+		}
 		if !ni.nis.HasNext() {
 			ni.next = nil
 		} else {
 			ni.next = ni.nis.Next().(Node)
 		}
-		fmt.Printf("ni.Next(): %s? (next: %s?)\n", result.GetValue().ReflectValue().Interface(), ni.next.GetValue().ReflectValue().Interface())
-		done = result == nil || ni.nv.IsValid(result)
+		resultOk = result == nil || ni.nv.IsValid(result)
+		nextOk = ni.next == nil || ni.nv.IsValid(ni.next)
 	}
-	fmt.Printf("ni.Next(): %s\n", result)
 	return result
 }

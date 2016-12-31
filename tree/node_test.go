@@ -128,15 +128,15 @@ func TestGetRoot(t *testing.T) {
 }
 
 func buildTestTree() Node {
-	tree := NewValueNode(1)
-	tree.Add(NewValueNode(2))
-	tree.Add(NewValueNode(3))
-	tree.GetChildren()[0].Add(NewValueNode(4))
-	tree.GetChildren()[1].Add(NewValueNode(5))
-	tree.GetChildren()[1].Add(NewValueNode(6))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNode(7))
-	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNode(8))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNode(9))
-	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNode(10))
+	tree := NewValueNodeFromInterface(1)
+	tree.Add(NewValueNodeFromInterface(2))
+	tree.Add(NewValueNodeFromInterface(3))
+	tree.GetChildren()[0].Add(NewValueNodeFromInterface(4))
+	tree.GetChildren()[1].Add(NewValueNodeFromInterface(5))
+	tree.GetChildren()[1].Add(NewValueNodeFromInterface(6))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNodeFromInterface(7))
+	tree.GetChildren()[0].GetChildren()[0].Add(NewValueNodeFromInterface(8))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNodeFromInterface(9))
+	tree.GetChildren()[1].GetChildren()[0].Add(NewValueNodeFromInterface(10))
 	return tree
 }

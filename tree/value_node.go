@@ -13,32 +13,88 @@ type ValueNode struct {
 	children []Node
 }
 
-func NewValueNode(i interface{}) *ValueNode {
+func NewValueNodeFromInterface(i interface{}) *ValueNode {
+	return NewValueNode(reflect.ValueOf(i))
+}
+
+func NewValueNode(v reflect.Value) *ValueNode {
 	n := &ValueNode{}
-	n.Value = reflect.ValueOf(i)
+	n.Value = v
 	n.parent = nil
 	n.children = make([]Node, 0)
 	return n
 }
 
-func (vn *ValueNode) String() string {
+func (vn *ValueNode) IsBool() bool {
+	return vn.Kind() == reflect.Bool
+}
+
+func (vn *ValueNode) IsInt() bool {
 	switch vn.Kind() {
-	case reflect.Bool:
-		return fmt.Sprintf("%s", vn.Bool())
 	case reflect.Int:
-		return fmt.Sprintf("%d", vn.Int())
+		return true
+	case reflect.Int8:
+		return true
+	case reflect.Int16:
+		return true
+	case reflect.Int32:
+		return true
+	case reflect.Int64:
+		return true
+	default:
+		return false
+	}
+}
+
+func (vn *ValueNode) IsUint() bool {
+	switch vn.Kind() {
 	case reflect.Uint:
-		return fmt.Sprintf("%d", vn.Uint())
+		return true
+	case reflect.Uint8:
+		return true
+	case reflect.Uint16:
+		return true
+	case reflect.Uint32:
+		return true
+	case reflect.Uint64:
+		return true
+	default:
+		return false
+	}
+}
+
+func (vn *ValueNode) IsFloat() bool {
+	switch vn.Kind() {
 	case reflect.Float32:
-		return fmt.Sprintf("%f", vn.Float())
+		return true
 	case reflect.Float64:
+		return true
+	default:
+		return false
+	}
+}
+
+func (vn *ValueNode) IsString() bool {
+	return vn.Kind() == reflect.String
+}
+
+func (vn *ValueNode) String() string {
+	switch {
+	case vn.IsBool():
+		return fmt.Sprintf("%s", vn.Bool())
+	case vn.IsInt():
+		return fmt.Sprintf("%d", vn.Int())
+	case vn.IsUint():
+		return fmt.Sprintf("%d", vn.Uint())
+	case vn.IsFloat():
 		return fmt.Sprintf("%f", vn.Float())
-	case reflect.String:
+	case vn.IsString():
 		return vn.Value.String()
 	default:
 		return vn.Value.String()
 	}
 }
+
 func (vn *ValueNode) GetValue() datastructures.Value {
 	return vn
 }
@@ -52,9 +108,8 @@ func (vn *ValueNode) GetChildren() []Node {
 }
 
 func (vn *ValueNode) Add(child Node) error {
-	vnc := child.(*ValueNode)
-	vn.children = append(vn.children, vnc)
-	vnc.parent = vn
+	vn.children = append(vn.children, child)
+	child.SetParent(vn)
 	return nil
 }
 
@@ -62,9 +117,8 @@ func (vn *ValueNode) Insert(child Node, index int) error {
 	if (index < 0) || (index > len(vn.children)) {
 		return fmt.Errorf("index %d out of bounds", index)
 	}
-	vnc := child.(*ValueNode)
-	vn.children = append(append(vn.children[:index], vnc), vn.children[index:]...)
-	vnc.parent = vn
+	vn.children = append(append(vn.children[:index], child), vn.children[index:]...)
+	child.SetParent(vn)
 	return nil
 }
 
@@ -81,6 +135,6 @@ func (vn *ValueNode) GetParent() Node {
 }
 
 func (vn *ValueNode) SetParent(n Node) error {
-	vn.parent = n.(*ValueNode)
+	vn.parent = n
 	return nil
 }

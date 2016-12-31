@@ -3,14 +3,14 @@ package tree
 import (
 	"testing"
 
+	"github.com/andreasstrack/datastructures"
 	T "github.com/andreasstrack/util/testing"
 )
 
-func TestCurrentValueNode(t *testing.T) {
+func TestValueNodeAsValue(t *testing.T) {
 	tt := T.NewT(t)
-	root := NewValueNode(1)
-	for i := 2; i < 5; i++ {
-		tt.AssertNoError(root.Add(NewValueNode(i)), "add node %d to roor", i)
-	}
-
+	vn := NewValueNodeFromInterface(1)
+	var v datastructures.Value
+	v = vn
+	tt.Assert(v.IsInt(), "value type (%s) is Int\n", v)
 }
