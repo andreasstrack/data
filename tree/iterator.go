@@ -187,7 +187,8 @@ func (ni *NodeIterator) init(start Node, cif ChildIteratorFactory, strategy Trav
 		panic("invalid traversal strategy")
 	}
 	ni.nis.init(start, cif)
-	ni.next = ni.nis.Next().(Node)
+	ni.next = nil
+	_ = ni.Next()
 }
 
 func (ni *NodeIterator) HasNext() bool {

@@ -48,6 +48,32 @@ func TestDepthFirstTraversal(t *testing.T) {
 	tt.AssertEquals(index, Size(tree), "number of iterated nodes in %s", tree)
 }
 
+type denyingNodeValidator struct {
+	i int
+	f float32
+}
+
+func (dnv denyingNodeValidator) IsValid(n Node) bool {
+	return false
+}
+
+func (dnv *denyingNodeValidator) String() string {
+	return "denyingNodeValidator"
+}
+
+func TestEmptyResult(t *testing.T) {
+	tt := T.NewT(t)
+	const lastValue int64 = 7
+	tree := buildIntTree(lastValue)
+	ni := NewValidatedNodeIterator(tree, newDefaultChildIterator, BreadthFirst, denyingNodeValidator{})
+	hadAtLeastOneElement := ni.HasNext()
+	for ni.HasNext() {
+		next := ni.Next()
+		tt.Assert(next != nil, "ni.Next() for empty iterator: %s", next)
+	}
+	tt.Assert(!hadAtLeastOneElement, "!hatAtLeastOneElement")
+}
+
 func TestIntBuildingChildIterator(t *testing.T) {
 	tt := T.NewT(t)
 	const lastValue int64 = 7
