@@ -1,7 +1,7 @@
 package tree
 
 import (
-	"github.com/andreasstrack/datastructures"
+	"github.com/andreasstrack/data"
 	"github.com/andreasstrack/util/patterns"
 )
 
@@ -87,7 +87,7 @@ type nodeIteratorStrategy interface {
 
 type depthFirstStrategy struct {
 	cbf  ChildIteratorFactory
-	cbs  datastructures.Stack
+	cbs  data.Stack
 	next Node
 }
 
@@ -131,14 +131,14 @@ func (dfs *depthFirstStrategy) Next() interface{} {
 type breadthFirstStrategy struct {
 	cif         ChildIteratorFactory
 	ci          ChildIterator
-	nextParents datastructures.Queue
+	nextParents data.Queue
 	next        Node
 }
 
 func (bfs *breadthFirstStrategy) init(n Node, cif ChildIteratorFactory) {
 	bfs.cif = cif
 	bfs.next = n
-	bfs.nextParents = datastructures.NewFifoQueue()
+	bfs.nextParents = data.NewFifoQueue()
 	bfs.nextParents.Insert(n)
 	bfs.newChildIterator()
 }

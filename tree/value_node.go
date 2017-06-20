@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/andreasstrack/datastructures"
+	"github.com/andreasstrack/data"
 )
 
 type ValueNode struct {
 	reflect.Value
-	parent   Node
 	children []Node
 }
 
@@ -20,7 +19,6 @@ func NewValueNodeFromInterface(i interface{}) *ValueNode {
 func NewValueNode(v reflect.Value) *ValueNode {
 	n := &ValueNode{}
 	n.Value = v
-	n.parent = nil
 	n.children = make([]Node, 0)
 	return n
 }
@@ -95,7 +93,7 @@ func (vn *ValueNode) String() string {
 	}
 }
 
-func (vn *ValueNode) GetValue() datastructures.Value {
+func (vn *ValueNode) GetValue() data.Value {
 	return vn
 }
 
@@ -109,7 +107,6 @@ func (vn *ValueNode) GetChildren() []Node {
 
 func (vn *ValueNode) Add(child Node) error {
 	vn.children = append(vn.children, child)
-	child.SetParent(vn)
 	return nil
 }
 
@@ -118,7 +115,6 @@ func (vn *ValueNode) Insert(child Node, index int) error {
 		return fmt.Errorf("index %d out of bounds", index)
 	}
 	vn.children = append(append(vn.children[:index], child), vn.children[index:]...)
-	child.SetParent(vn)
 	return nil
 }
 
@@ -127,14 +123,5 @@ func (vn *ValueNode) Remove(index int) error {
 		return fmt.Errorf("index %d out of bounds", index)
 	}
 	vn.children = append(vn.children[:index], vn.children[index+1:]...)
-	return nil
-}
-
-func (vn *ValueNode) GetParent() Node {
-	return vn.parent
-}
-
-func (vn *ValueNode) SetParent(n Node) error {
-	vn.parent = n
 	return nil
 }

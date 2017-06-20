@@ -1,4 +1,4 @@
-package datastructures
+package data
 
 import "fmt"
 
@@ -16,19 +16,6 @@ type Queue interface {
 	Peek() interface{}
 	Pop() interface{}
 	Size() int
-	IsEmpty() bool
-	Clear()
-}
-
-// A PriorityQueue is a queue where at any
-// time the head is the element in the queue
-// with the highest priority. The relative
-// priority of elements is determined by comparing
-// them.
-type PriorityQueue interface {
-	Insert(c Comparable)
-	Peek() Comparable
-	Pop() Comparable
 	IsEmpty() bool
 	Clear()
 }

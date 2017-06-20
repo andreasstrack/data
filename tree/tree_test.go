@@ -6,16 +6,6 @@ import (
 	T "github.com/andreasstrack/util/testing"
 )
 
-func TestGetSetParent(t *testing.T) {
-	tt := T.NewT(t)
-	tree := NewValueNodeFromInterface(5)
-
-	parentTree := NewValueNodeFromInterface(10)
-
-	tree.SetParent(parentTree)
-	tt.AssertEquals(tree.GetParent(), parentTree, "parent of %s", tree)
-}
-
 func TestAddChildren(t *testing.T) {
 	tt := T.NewT(t)
 	tree := NewValueNodeFromInterface(1)

@@ -86,15 +86,17 @@ func TestIntBuildingChildIterator(t *testing.T) {
 func buildIntTree(lastValue int64) Node {
 	tree := NewValueNodeFromInterface(1)
 	bni := NewNodeIterator(tree, func(n Node) ChildIterator {
-		return newIntBuildingChildIterator(n, lastValue, 2)
+		return newIntBuildingChildIterator(n, tree, lastValue, 2)
 	}, BreadthFirst)
 	for bni.HasNext() {
 		bni.Next()
+
 	}
 	return tree
 }
 
 type intBuildingChildIterator struct {
+	root            Node
 	parent          Node
 	count           uint64
 	nextValue       int64
@@ -103,9 +105,9 @@ type intBuildingChildIterator struct {
 	next            Node
 }
 
-func newIntBuildingChildIterator(n Node, maxValue int64, branchingFactor uint64) *intBuildingChildIterator {
-	ibci := &intBuildingChildIterator{maxValue: maxValue, branchingFactor: branchingFactor}
-	ibci.Init(n)
+func newIntBuildingChildIterator(parent Node, root Node, maxValue int64, branchingFactor uint64) *intBuildingChildIterator {
+	ibci := &intBuildingChildIterator{root: root, maxValue: maxValue, branchingFactor: branchingFactor}
+	ibci.Init(parent)
 	return ibci
 }
 
@@ -118,7 +120,7 @@ func (ibci *intBuildingChildIterator) Init(n Node) {
 
 func (ibci *intBuildingChildIterator) findNextValue() int64 {
 	maxValue := int64(math.MinInt64)
-	allNodes := GetAllNodesOfTree(ibci.parent)
+	allNodes := GetAllNodesOfTree(ibci.root)
 	if len(allNodes) == 0 {
 		return 0
 	}
