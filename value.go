@@ -1,11 +1,17 @@
 package data
 
-import "reflect"
+import (
+	"reflect"
+)
 
 // Value is an interface to represent
 // the type of a value for a key/value store.
+// TODO: (Maybe) either ...
+// 1) Throw away completely and just use reflect.Value or ...
+// 2) Convert to a struct embedding reflect.Value and just add
+//    IsSimpleData
 type Value interface {
-	//	IsBool() bool
+	IsBool() bool
 	Bool() bool
 	IsInt() bool
 	Int() int64
@@ -21,8 +27,12 @@ type Value interface {
 
 func IsSimpleData(v Value) bool {
 	switch {
-	//	case v.IsInt():
-	//		return true
+	case v.IsBool():
+		return true
+	case v.IsInt():
+		return true
+	case v.IsUint():
+		return true
 	case v.IsFloat():
 		return true
 	case v.IsString():
